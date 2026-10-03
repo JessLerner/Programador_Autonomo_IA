@@ -1,0 +1,6 @@
+{
+  "name": "Local Codex - Autonomous Windows Developer Agent",
+  "description": "Local autonomous coding agent for Windows & desktop projects that inspects repositories, plans, edits files, executes commands, detects and self-corrects errors with Git integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

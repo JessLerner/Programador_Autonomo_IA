@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Carlos Mendoza",
+    "email": "carlos.mendoza@empresa.com",
+    "company": "TecnoSoluciones S.A.",
+    "status": "Activo",
+    "balance": 14500
+  },
+  {
+    "id": 2,
+    "name": "Lucía Fernández",
+    "email": "lucia.f@innovacion.net",
+    "company": "Innovar Labs",
+    "status": "Activo",
+    "balance": 8200
+  },
+  {
+    "id": 3,
+    "name": "Martín Gómez",
+    "email": "martin.gomez@logistica.ar",
+    "company": "Logística del Sur",
+    "status": "Pendiente",
+    "balance": 3100
+  },
+  {
+    "id": 4,
+    "name": "Sofía Rossi",
+    "email": "sofia.rossi@rossi-design.com",
+    "company": "Studio Rossi",
+    "status": "Activo",
+    "balance": 22400
+  },
+  {
+    "id": 5,
+    "name": "Alejandro Silva",
+    "email": "asilva@constructora.com",
+    "company": "Constructora Silva & Hnos",
+    "status": "Inactivo",
+    "balance": 0
+  }
+]
