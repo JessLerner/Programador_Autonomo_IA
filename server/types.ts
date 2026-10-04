@@ -31,6 +31,8 @@ export interface AgentAction {
   endLine?: number;
   command?: string;
   query?: string;
+  extension?: string;
+  excludeDirs?: string[] | string;
   message?: string;
   plan?: Array<{ id: number; title: string; description: string }>;
   summary?: string;

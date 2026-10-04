@@ -14,8 +14,8 @@ import {
 } from './types.js';
 
 export default function App() {
-  const [projectRoot, setProjectRoot] = useState('sample_projects/MiAplicacion');
-  const [folderName, setFolderName] = useState('MiAplicacion');
+  const [projectRoot, setProjectRoot] = useState('');
+  const [folderName, setFolderName] = useState('');
   const [tree, setTree] = useState<FileNode | undefined>();
   const [gitStatus, setGitStatus] = useState<GitRepoStatus | undefined>();
   const [providers, setProviders] = useState<AIProviderItem[]>([]);
@@ -42,6 +42,13 @@ export default function App() {
     setIsRefreshing(true);
     try {
       const target = rootPath !== undefined ? rootPath : projectRoot;
+      if (!target || !target.trim()) {
+        setTree(undefined);
+        setGitStatus(undefined);
+        setFolderName('');
+        return;
+      }
+
       const res = await fetch(`/api/workspace?projectRoot=${encodeURIComponent(target)}`);
       if (res.ok) {
         const data = await res.json();

@@ -13,14 +13,22 @@ export const apiRouter = express.Router();
 
 // Helper to resolve workspace path
 function resolveWorkspace(inputPath?: string): string {
-  if (!inputPath || inputPath.trim() === '') {
-    return path.resolve(process.cwd(), 'sample_projects/MiAplicacion');
+  const trimmed = inputPath?.trim();
+  if (!trimmed) {
+    throw new Error('Se requiere un workspace válido. Proporciona projectRoot con una ruta absoluta o relativa al proyecto.');
   }
-  // If absolute path
-  if (path.isAbsolute(inputPath)) {
-    return path.resolve(inputPath);
+
+  if (path.isAbsolute(trimmed)) {
+    return path.resolve(trimmed);
   }
-  return path.resolve(process.cwd(), inputPath);
+
+  return path.resolve(process.cwd(), trimmed);
+}
+
+function respondError(res: any, err: any, defaultStatus = 500) {
+  const message = err?.message || 'Error inesperado';
+  const status = message.includes('workspace válido') ? 400 : defaultStatus;
+  return res.status(status).json({ error: message });
 }
 
 // Test Brain Endpoint
@@ -30,7 +38,7 @@ apiRouter.post('/test-brain', async (req, res) => {
     const decision = await brain.ask(req.body);
     res.json({ success: true, decision });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 
@@ -57,7 +65,7 @@ apiRouter.get('/workspace', async (req, res) => {
       git: gitStatus,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 
@@ -74,7 +82,7 @@ apiRouter.get('/file', async (req, res) => {
     }
     res.json({ path: filePath, content: fileRes.content });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 
@@ -91,7 +99,7 @@ apiRouter.post('/file', async (req, res) => {
     }
     res.json({ success: true, diff: writeRes.diff });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 
@@ -102,7 +110,7 @@ apiRouter.get('/git/status', async (req, res) => {
     const status = await GitTools.getStatus(projectRoot);
     res.json(status);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 
@@ -112,7 +120,7 @@ apiRouter.get('/git/diff', async (req, res) => {
     const diff = await GitTools.getDiff(projectRoot);
     res.json(diff);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 
@@ -127,7 +135,7 @@ apiRouter.post('/command', async (req, res) => {
     auditLogger.log('TOOL_INVOKED', `Comando ejecutado manualmente: ${command}`, result);
     res.json(result);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 
@@ -148,7 +156,7 @@ apiRouter.post('/agent/run', async (req, res) => {
       history: runState.history,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 
@@ -175,7 +183,7 @@ apiRouter.post('/agent/step', async (req, res) => {
       error: runState.error,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 
@@ -191,7 +199,7 @@ apiRouter.post('/agent/answer', (req, res) => {
       history: runState.history,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 
@@ -206,7 +214,7 @@ apiRouter.post('/agent/approve-plan', (req, res) => {
       planApproved: runState.planApproved,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 
@@ -239,7 +247,7 @@ apiRouter.post('/agent/reject-action', (req, res) => {
       history: runState.history,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 
@@ -250,7 +258,7 @@ apiRouter.post('/agent/stop', (req, res) => {
     const runState = agentOrchestrator.stopRun(runId);
     res.json({ runId: runState.id, status: runState.status });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    return respondError(res, err);
   }
 });
 

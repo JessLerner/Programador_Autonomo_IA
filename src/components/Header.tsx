@@ -123,13 +123,6 @@ export const Header: React.FC<HeaderProps> = ({
             >
               Cambiar...
             </button>
-            <button
-              onClick={() => onSelectProject('sample_projects/MiAplicacion')}
-              title="Cargar proyecto de prueba 'MiAplicacion (Clientes)'"
-              className="text-[10px] bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-1.5 py-0.5 rounded border border-neutral-700"
-            >
-              Demo: Clientes
-            </button>
           </div>
         )}
 

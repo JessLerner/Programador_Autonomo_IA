@@ -173,8 +173,20 @@ export class ToolDispatcher {
       case 'search_files': {
         const query = normalizedAction.query || (normalizedAction as any).searchTerm;
         const subPath = normalizedAction.path || (normalizedAction as any).subPath || '';
+        const extension = normalizedAction.extension || (normalizedAction as any).ext;
+        const excludeDirs = normalizedAction.excludeDirs ?? (normalizedAction as any).excludeDirsList ?? (normalizedAction as any).excludeDirectories;
         if (!query) return { success: false, output: '', error: 'Falta parámetro "query".' };
-        const res = await FileTools.searchFiles(projectRoot, String(query), String(subPath));
+
+        const normalizedExcludeDirs = Array.isArray(excludeDirs)
+          ? excludeDirs.map((dir) => String(dir))
+          : typeof excludeDirs === 'string'
+            ? excludeDirs.split(',').map((dir) => dir.trim()).filter(Boolean)
+            : undefined;
+
+        const res = await FileTools.searchFiles(projectRoot, String(query), String(subPath), {
+          extension: extension ? String(extension) : undefined,
+          excludeDirs: normalizedExcludeDirs,
+        });
         if (res.success && res.matches) {
           auditLogger.log('TOOL_RESULT', `Búsqueda "${query}": ${res.matches.length} coincidencias`);
           return {

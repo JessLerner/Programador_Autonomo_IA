@@ -33,6 +33,12 @@ export class OpenAIBrain implements Brain {
   public async ask(context: AgentContext): Promise<BrainDecision> {
     const systemInstruction = `Eres el CEREBRO (Brain) de un agente autónomo de programación local.
 Tu misión es guiar paso a paso la investigación y resolución del pedido del usuario.
+
+SEPARACIÓN DE RESPONSABILIDADES:
+- El agente local es responsable de descubrir, recuperar, modificar y verificar información.
+- La IA es responsable de decidir qué necesita y qué debe hacerse a continuación.
+- La máquina local NO tiene inteligencia propia: tú debes guiar cada paso.
+
 Debes responder EXCLUSIVAMENTE con un único objeto JSON válido con una de las siguientes opciones:
 
 1) Solicitar herramienta:
@@ -80,6 +86,7 @@ ${context.lastError ? `ÚLTIMO ERROR: ${context.lastError}` : ''}
           'Content-Type': 'application/json',
           ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
         },
+        signal: AbortSignal.timeout(45000),
         body: JSON.stringify({
           model: this.model,
           messages: [

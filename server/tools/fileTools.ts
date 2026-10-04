@@ -196,7 +196,8 @@ export class FileTools {
   public static async searchFiles(
     projectRoot: string,
     query: string,
-    subPath: string = ''
+    subPath: string = '',
+    options: { extension?: string; excludeDirs?: string[] } = {}
   ): Promise<{ success: boolean; matches?: Array<{ file: string; line: number; preview: string }>; error?: string }> {
     const searchTarget = path.resolve(projectRoot, subPath || '.');
     const check = SafetyGuard.resolveSafePath(projectRoot, searchTarget);
@@ -205,18 +206,28 @@ export class FileTools {
     try {
       const matches: Array<{ file: string; line: number; preview: string }> = [];
       const lowerQuery = query.toLowerCase();
+      const defaultExcludedDirs = ['node_modules', 'dist', 'build', 'target', '.git'];
+      const excludedDirs = new Set([
+        ...defaultExcludedDirs,
+        ...(options.excludeDirs || []).map((dir) => String(dir).trim()).filter(Boolean),
+      ]);
+      const normalizedExtension = options.extension
+        ? options.extension.startsWith('.') ? options.extension.toLowerCase() : `.${options.extension.toLowerCase()}`
+        : undefined;
 
       const walk = async (dir: string) => {
         const entries = await fs.promises.readdir(dir, { withFileTypes: true });
         for (const entry of entries) {
-          if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'dist') continue;
+          if (excludedDirs.has(entry.name)) continue;
           const fullPath = path.join(dir, entry.name);
           if (entry.isDirectory()) {
             await walk(fullPath);
           } else {
             try {
               const stat = await fs.promises.stat(fullPath);
-              if (stat.size > 1024 * 1024) continue; // Skip files > 1MB
+              if (stat.size > 1024 * 1024) continue;
+              if (normalizedExtension && !fullPath.toLowerCase().endsWith(normalizedExtension)) continue;
+
               const content = await fs.promises.readFile(fullPath, 'utf-8');
               const lines = content.split('\n');
               for (let i = 0; i < lines.length; i++) {

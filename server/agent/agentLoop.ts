@@ -54,6 +54,17 @@ export class AgentOrchestrator {
   private runs: Map<string, AgentRunState> = new Map();
   public toolDispatcher: ToolDispatcher = new ToolDispatcher();
 
+  private summarizeToolOutput(output?: string): string {
+    if (!output) return '';
+    if (output.length <= 1300) return output;
+
+    const start = output.slice(0, 500);
+    const end = output.slice(-800);
+    const omitted = output.length - start.length - end.length;
+
+    return `${start}\n\n...[truncado: ${omitted} caracteres ocultos]...\n\n${end}`;
+  }
+
   public createRun(
     userInstruction: string,
     projectRoot: string,
@@ -229,7 +240,7 @@ export class AgentOrchestrator {
           arguments: decision.arguments,
           reason: decision.reason,
           success: result.success,
-          outputSnippet: result.output ? result.output.slice(0, 1000) : '',
+          outputSnippet: this.summarizeToolOutput(result.output),
           error: result.error,
           exitCode: result.exitCode,
         };
@@ -309,7 +320,7 @@ export class AgentOrchestrator {
       tool: pending.action.action,
       arguments: pending.action,
       success: result.success,
-      outputSnippet: result.output ? result.output.slice(0, 1000) : '',
+      outputSnippet: this.summarizeToolOutput(result.output),
       error: result.error,
       exitCode: result.exitCode,
     });
